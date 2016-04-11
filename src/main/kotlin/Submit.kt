@@ -30,7 +30,6 @@ private class EnaCredentials {
     }
 }
 
-
 enum class EnaServer(val url: String) {
     TEST("https://www-test.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA%20${EnaCredentials.user}%20${EnaCredentials.password}"),
     PRODUCTION("https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA%20${EnaCredentials.user}%20${EnaCredentials.password}")
@@ -105,27 +104,29 @@ private fun parseResult(responseString: String): SubmissionResult {
     return result
 }
 
-fun uploadToEnaFtp(file: File) {
+private fun enaFtp(operations: FTPClient.() -> Unit) {
     with(FTPClient()) {
         connect("ftp.sra.ebi.ac.uk")
         login(EnaCredentials.user, EnaCredentials.password)
+        operations()
+        logout()
+        if (isConnected) disconnect()
+    }
+}
+
+fun uploadToEnaFtp(file: File) {
+    enaFtp {
         setFileType(FTP.BINARY_FILE_TYPE)
         bufferSize = 10 * 1024 * 1024
 
         FileInputStream(file).use {
             storeFile(file.name, it)
         }
-        logout()
-        if (isConnected) disconnect()
     }
 }
 
 fun deleteFromEnaFtp(file: File) {
-    with(FTPClient()) {
-        connect("ftp.sra.ebi.ac.uk")
-        login(EnaCredentials.user, EnaCredentials.password)
+    enaFtp {
         deleteFile(file.name)
-        logout()
-        if (isConnected) disconnect()
     }
 }

@@ -1,5 +1,6 @@
-[![Build Status](https://travis-ci.org/rror/ena-submit.svg?branch=master)](https://travis-ci.org/rror/ena-submit)
 # ena-submit
+[![Build Status](https://travis-ci.org/rror/ena-submit.svg?branch=master)](https://travis-ci.org/rror/ena-submit)
+
 A Kotlin library to submit [Variant Call Format](https://en.wikipedia.org/wiki/Variant_Call_Format) (VCF) and [CRAM](http://www.ebi.ac.uk/ena/software/cram-toolkit) files to the [European Nucleotide Archive](http://www.ebi.ac.uk/ena) (ENA)
 
 ## Submitting a VCF to ENA
