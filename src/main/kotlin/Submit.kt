@@ -14,6 +14,7 @@ import java.io.FileInputStream
 import java.io.FileWriter
 import java.io.StringReader
 import java.security.InvalidParameterException
+import java.util.*
 import javax.xml.stream.XMLInputFactory
 
 private class EnaCredentials {
@@ -30,9 +31,28 @@ private class EnaCredentials {
     }
 }
 
+private class EnaUrls {
+    companion object {
+        val testServer: String
+        val productionServer: String
+        val ftpServer: String
+
+        init {
+            val prop = Properties()
+            FileInputStream("ena-url.properties").use {
+                prop.load(it)
+            }
+            fun exception(name: String) = InvalidParameterException("'$name' is not set in ena-url.properties")
+            testServer = prop.getProperty("test-server") ?: throw exception("test-server")
+            productionServer = prop.getProperty("production-server") ?: throw exception("production-server")
+            ftpServer = prop.getProperty("ftp-server") ?: throw exception("ftp-server")
+        }
+    }
+}
+
 enum class EnaServer(val url: String) {
-    TEST("https://www-test.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA%20${EnaCredentials.user}%20${EnaCredentials.password}"),
-    PRODUCTION("https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA%20${EnaCredentials.user}%20${EnaCredentials.password}")
+    TEST("${EnaUrls.testServer}?auth=ENA%20${EnaCredentials.user}%20${EnaCredentials.password}"),
+    PRODUCTION("${EnaUrls.productionServer}?auth=ENA%20${EnaCredentials.user}%20${EnaCredentials.password}")
 }
 
 data class SubmissionResult(var success: Boolean = false,
@@ -106,7 +126,7 @@ private fun parseResult(responseString: String): SubmissionResult {
 
 private fun enaFtp(operations: FTPClient.() -> Unit) {
     with(FTPClient()) {
-        connect("ftp.sra.ebi.ac.uk")
+        connect(EnaUrls.ftpServer)
         login(EnaCredentials.user, EnaCredentials.password)
         operations()
         logout()
