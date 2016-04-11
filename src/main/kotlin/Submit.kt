@@ -19,15 +19,9 @@ import javax.xml.stream.XMLInputFactory
 
 private class EnaCredentials {
     companion object {
-        val user = System.getenv("ena_user")
-        val password = System.getenv("ena_password")
-
-        init {
-            when {
-                user == null -> throw InvalidParameterException("Environment variable 'ena_user' not set.")
-                password == null -> throw InvalidParameterException("Environment variable 'ena_password' not set.")
-            }
-        }
+        fun exception(name: String) = InvalidParameterException("Environment variable '$name' not set.")
+        val user = System.getenv("ena_user") ?: throw exception("ena_user")
+        val password = System.getenv("ena_password") ?: throw exception("ena_password")
     }
 }
 
