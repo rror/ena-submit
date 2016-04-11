@@ -19,7 +19,7 @@ import javax.xml.stream.XMLInputFactory
 
 private class EnaCredentials {
     companion object {
-        fun exception(name: String) = InvalidParameterException("Environment variable '$name' not set.")
+        private fun exception(name: String) = InvalidParameterException("Environment variable '$name' not set.")
         val user = System.getenv("ena_user") ?: throw exception("ena_user")
         val password = System.getenv("ena_password") ?: throw exception("ena_password")
     }
@@ -139,7 +139,7 @@ fun uploadToEnaFtp(file: File) {
     }
 }
 
-fun deleteFromEnaFtp(file: File) {
+internal fun deleteFromEnaFtp(file: File) {
     enaFtp {
         deleteFile(file.name)
     }
