@@ -35,6 +35,7 @@ val (submissionXml, analysisXml) = analysis {
 The order of elements does not matter. Not all elements are mandatory - if any required elements have been omitted an `EnaXmlException` with descriptive message will be thrown.
 
 Now that we have the XMLs, we just have to upload the VCF and submit.
+The credentials needed for uploading and submitting to ENA are expected to be stored in the environment variables `ena_user` and `ena_password`.
 ```kotlin
 uploadToEnaFtp(vcfFile)
 val result = submitToEna(submissionXml, analysisXml, EnaServer.TEST)

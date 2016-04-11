@@ -13,11 +13,27 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileWriter
 import java.io.StringReader
+import java.security.InvalidParameterException
 import javax.xml.stream.XMLInputFactory
 
+private class EnaCredentials {
+    companion object {
+        val user = System.getenv("ena_user")
+        val password = System.getenv("ena_password")
+
+        init {
+            when {
+                user == null -> throw InvalidParameterException("Environment variable 'ena_user' not set.")
+                password == null -> throw InvalidParameterException("Environment variable 'ena_password' not set.")
+            }
+        }
+    }
+}
+
+
 enum class EnaServer(val url: String) {
-    TEST("https://www-test.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ERA%20era-drop-259%2049c27FGa1gLEWqgFJAz7rm6CuHM%3D"),
-    PRODUCTION("https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ERA%20era-drop-259%2049c27FGa1gLEWqgFJAz7rm6CuHM%3D")
+    TEST("https://www-test.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA%20${EnaCredentials.user}%20${EnaCredentials.password}"),
+    PRODUCTION("https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA%20${EnaCredentials.user}%20${EnaCredentials.password}")
 }
 
 data class SubmissionResult(var success: Boolean = false,
@@ -36,7 +52,6 @@ fun submitToEna(submissionXml: String, analysisXml: String, enaServer: EnaServer
     val httpClient = createCertificateIgnoringHttpclient()
     val response = httpClient.execute(post)
     val responseString = IOUtils.toString(response.entity.content)
-
     return parseResult(responseString)
 }
 
@@ -93,7 +108,7 @@ private fun parseResult(responseString: String): SubmissionResult {
 fun uploadToEnaFtp(file: File) {
     with(FTPClient()) {
         connect("ftp.sra.ebi.ac.uk")
-        login("", "")
+        login(EnaCredentials.user, EnaCredentials.password)
         setFileType(FTP.BINARY_FILE_TYPE)
         bufferSize = 10 * 1024 * 1024
 
@@ -108,12 +123,9 @@ fun uploadToEnaFtp(file: File) {
 fun deleteFromEnaFtp(file: File) {
     with(FTPClient()) {
         connect("ftp.sra.ebi.ac.uk")
-        login("", "")
+        login(EnaCredentials.user, EnaCredentials.password)
         deleteFile(file.name)
         logout()
         if (isConnected) disconnect()
     }
 }
-
-//    val a = Random().ints(10,0,10).toArray().joinToString("")
-
