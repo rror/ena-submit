@@ -65,7 +65,11 @@ fun submitToEna(submissionXml: String, analysisXml: String, enaServer: EnaServer
     val httpClient = createCertificateIgnoringHttpclient()
     val response = httpClient.execute(post)
     val responseString = IOUtils.toString(response.entity.content)
-    return parseResult(responseString)
+    if (responseString == "Server error. Please contact us if the problem persists.") {
+        return SubmissionResult(success = false, error = responseString)
+    } else {
+        return parseResult(responseString)
+    }
 }
 
 private fun createXmlFiles(analysisXml: String, submissionXml: String): Pair<File, File> {

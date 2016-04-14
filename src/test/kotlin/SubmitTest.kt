@@ -48,10 +48,13 @@ class SubmitTest {
         }
 
         val result = submitToEna(submissionXml, analysisXml, EnaServer.TEST)
+        if (result.error == "Server error. Please contact us if the problem persists.") {
+            println("ENA submission server is down. Unable to test submission.")
+        }
         // Submissions to the ENA test server are deleted every 24 hours,
         // so only the first test submission of the day will go though.
         // Alternative: create unique alias and file name for every test invocation.
-        if (!result.error.contains("Submission with name Maize HapMap test already exists")) {
+        else if (!result.error.contains("Submission with name Maize HapMap test already exists")) {
             assertThat(result.success, is_(true))
             assertThat(result.submissionAcc, startsWith("ERA"))
             assertThat(result.analysisAcc, startsWith("ERZ"))
