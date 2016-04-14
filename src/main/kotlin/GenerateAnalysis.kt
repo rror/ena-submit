@@ -110,6 +110,11 @@ class Mapping() {
     operator fun Pair<String, String>.unaryPlus() {
         pairs.add(this)
     }
+
+    /**
+     * Convenience function for Java
+     */
+    fun add(first: String, second: String) = +first.to(second)
 }
 
 private fun throwXmlErrors(xml: XmlObject) {
