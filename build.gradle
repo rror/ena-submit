@@ -1,5 +1,5 @@
 group 'at.grabi'
-version '0.1'
+version '1.0'
 
 buildscript {
     repositories {
@@ -25,4 +25,15 @@ dependencies {
     compile "commons-io:commons-io:2.4"
     compile "commons-net:commons-net:3.4"
     compile files('libs/ena-schema-1.0.jar')
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes('Implementation-Title': 'Jar with dependencies',
+                'Implementation-Version': version,
+                'Main-Class': 'GenerateAnalysis')
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
