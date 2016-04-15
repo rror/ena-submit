@@ -24,14 +24,13 @@ dependencies {
     compile "org.apache.httpcomponents:httpmime:4.5.2"
     compile "commons-io:commons-io:2.4"
     compile "commons-net:commons-net:3.4"
-    compile files('libs/ena-schema-1.0.jar')
+    compile files('libs/ena-schema-1.5.jar')
 }
 
 task fatJar(type: Jar) {
     manifest {
-        attributes('Implementation-Title': 'Jar with dependencies',
-                'Implementation-Version': version,
-                'Main-Class': 'GenerateAnalysis')
+        attributes('Implementation-Title': 'jar with dependencies',
+                'Implementation-Version': version)
     }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
