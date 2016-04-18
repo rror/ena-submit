@@ -15,7 +15,7 @@ public class GenerateAnalysisJavaTest {
 	@Test(expected = EnaXmlException.class)
 	public void createIncompleteAnalysisTest() {
 		GenerateAnalysisKt.analysis(analysis -> {
-			analysis.title("Capturing Extant Variation from a Genome in Flux: Maize HapMap II");
+			analysis.setTitle("Capturing Extant Variation from a Genome in Flux: Maize HapMap II");
 			return Unit.INSTANCE;
 		});
 	}
@@ -23,25 +23,25 @@ public class GenerateAnalysisJavaTest {
 	@Test
 	public void createVcfAnalysisTest() throws XmlException {
 		Pair<String, String> xmls = GenerateAnalysisKt.analysis(analysis -> {
-			analysis.alias("Maize HapMap test");
-			analysis.centerName("CSHL");
-			analysis.analysisCenter("CSHL");
-			analysis.brokerName("ENSEMBL GENOMES");
-			analysis.holdDate(new GregorianCalendar(2020, 11, 24).getTime()); // month is 0 based
-			analysis.title("Capturing Extant Variation from a Genome in Flux: Maize HapMap II");
-			analysis.description("A comprehensive characterization of genetic variation across 103 inbred lines ...");
+			analysis.setAlias("Maize HapMap test");
+			analysis.setCenterName("CSHL");
+			analysis.setAnalysisCenter("CSHL");
+			analysis.setBrokerName("ENSEMBL GENOMES");
+			analysis.setHoldDate(new GregorianCalendar(2020, 11, 24).getTime()); // month is 0 based
+			analysis.setTitle("Capturing Extant Variation from a Genome in Flux: Maize HapMap II");
+			analysis.setDescription("A comprehensive characterization of genetic variation across 103 inbred lines ...");
 			analysis.sampleMapping(mapping -> {
 				mapping.add("IRGC103469/IRGC103469_aln_sorted.bam", "SRS302388");
 				mapping.add("TOG7102/TOG7102_aln_sorted.bam", "SRS302394");
 				mapping.add("TOG5467/TOG5467_aln_sorted.bam", "SRS302390");
 				return Unit.INSTANCE;
 			});
-			analysis.studyReference("SRP011907");
-			analysis.runReference("SRR447750");
+			analysis.setStudyReference("SRP011907");
+			analysis.setRunReference("SRR447750");
 			analysis.vcf(analysisFile -> {
-				analysisFile.fileName("Glab_var_chr1_flt_1k.vcf");
-				analysisFile.md5("10899e2ca49b37c8c37c4763616496ac");
-				analysisFile.assemblyAccession("GCA_000005005.2");
+				analysisFile.setFileName("Glab_var_chr1_flt_1k.vcf");
+				analysisFile.setMd5("10899e2ca49b37c8c37c4763616496ac");
+				analysisFile.setAssemblyReference("GCA_000005005.2");
 				analysisFile.sequenceMapping(mapping -> {
 					mapping.add("1", "GK000031.2");
 					return Unit.INSTANCE;

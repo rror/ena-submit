@@ -10,23 +10,22 @@ To make this error-prone task easier, the following type-safe builder can be use
 ```kotlin
 val vcfFile = File("some.vcf")
 val (submissionXml: String, analysisXml: String) = analysis {
-    alias("Maize HapMap test")
-    centerName("CSHL")
-    brokerName("ENSEMBL GENOMES")
-    holdDate(GregorianCalendar(2020, 11, 24).time) // month is 0 based
-    title("Capturing Extant Variation from a Genome in Flux: Maize HapMap II")
-    description("A comprehensive characterization of genetic variation across 103 inbred lines ...")
+    alias = "Maize HapMap test"
+    centerName = "CSHL"
+    brokerName = "ENSEMBL GENOMES"
+    holdDate = GregorianCalendar(2020, 11, 24).time // month is 0 based
+    title = "Capturing Extant Variation from a Genome in Flux: Maize HapMap II"
+    description = "A comprehensive characterization of genetic variation across 103 inbred lines ..."
     sampleMapping {
         +"IRGC103469/IRGC103469_aln_sorted.bam".to("SRS302388")
         +"TOG5457/TOG5457_aln_sorted.bam".to("SRS302389")
         +"TOG5467/TOG5467_aln_sorted.bam".to("SRS302390")
     }
-    studyReference("SRP011907")
-    runReference("SRR447750")
+    studyReference = "SRP011907"
+    runReference = "SRR447750"
     vcf {
-        fileName(vcfFile)  // or fileName("some.vcf")
-        md5(vcfFile)  // or md5("10899e2ca49b37c8c37c4763616496ac")
-        assemblyAccession("GCA_000005005.2")
+        file = vcfFile  // or fileName = "some.vcf"; md5 = "10899e2ca49b37c8c37c4763616496ac"
+        assemblyReference = "GCA_000005005.2"
         sequenceMapping {
             +"1".to("GK000031.2")
         }
@@ -53,31 +52,31 @@ import kotlin.Unit;
 
 File vcf = new File("some.vcf");
 Pair<String, String> xmls = GenerateAnalysisKt.analysis(analysis -> {
-    analysis.alias("Maize HapMap test");
-    analysis.centerName("CSHL");
-    analysis.brokerName("ENSEMBL GENOMES");
-    analysis.holdDate(new GregorianCalendar(2020, 11, 24).getTime()); // month is 0 based
-    analysis.title("Capturing Extant Variation from a Genome in Flux: Maize HapMap II");
-    analysis.description("A comprehensive characterization of genetic variation across 103 inbred lines ...");
-    analysis.sampleMapping(mapping -> {
-        mapping.add("IRGC103469/IRGC103469_aln_sorted.bam", "SRS302388");
-        mapping.add("TOG5457/TOG5457_aln_sorted.bam", "SRS302389");
-        mapping.add("TOG5467/TOG5467_aln_sorted.bam", "SRS302390");
-        return Unit.INSTANCE;
-    });
-    analysis.studyReference("SRP011907");
-    analysis.runReference("SRR447750");
-    analysis.vcf(analysisFile -> {
-        analysisFile.fileName(vcf);  // or analysisFile.fileName("some.vcf")
-        analysisFile.md5(vcf);  // or analysisFile.md5("10899e2ca49b37c8c37c4763616496ac");
-        analysisFile.assemblyAccession("GCA_000005005.2");
-        analysisFile.sequenceMapping(mapping -> {
-            mapping.add("1", "GK000031.2");
-            return Unit.INSTANCE;
-        });
-        return Unit.INSTANCE;
-    });
-    return Unit.INSTANCE;
+	analysis.setAlias("Maize HapMap test");
+	analysis.setCenterName("CSHL");
+	analysis.setBrokerName("ENSEMBL GENOMES");
+	analysis.setHoldDate(new GregorianCalendar(2020, 11, 24).getTime()); // month is 0 based
+	analysis.setTitle("Capturing Extant Variation from a Genome in Flux: Maize HapMap II");
+	analysis.setDescription("A comprehensive characterization of genetic variation across 103 inbred lines ...");
+	analysis.sampleMapping(mapping -> {
+		mapping.add("IRGC103469/IRGC103469_aln_sorted.bam", "SRS302388");
+		mapping.add("TOG5457/TOG5457_aln_sorted.bam", "SRS302389");
+		mapping.add("TOG5467/TOG5467_aln_sorted.bam", "SRS302390");
+		return Unit.INSTANCE;
+	});
+	analysis.setStudyReference("SRP011907");
+	analysis.setRunReference("SRR447750");
+	analysis.vcf(analysisFile -> {
+		analysisFile.setFile(vcf);  // or analysisFile.setFileName("some.vcf");
+									// analysisFile.setMd5("10899e2ca49b37c8c37c4763616496ac");
+		analysisFile.setAssemblyReference("GCA_000005005.2");
+		analysisFile.sequenceMapping(mapping -> {
+			mapping.add("1", "GK000031.2");
+			return Unit.INSTANCE;
+		});
+		return Unit.INSTANCE;
+	});
+	return Unit.INSTANCE;
 });
 String submissionXml = xmls.getFirst();
 String analysisXml = xmls.getSecond();
@@ -85,10 +84,9 @@ String analysisXml = xmls.getSecond();
 SubmitKt.uploadToEnaFtp(vcf);
 SubmissionResult result = SubmitKt.submitToEna(submissionXml, analysisXml, EnaServer.TEST);
 if (result.getSuccess())
-    System.out.println(String.format("%s %s", result.getSubmissionAcc(), result.getAnalysisAcc()));
+	System.out.println(String.format("%s %s", result.getSubmissionAcc(), result.getAnalysisAcc()));
 else
-    System.out.println(result.getError());
-
+	System.out.println(result.getError());
 ```
 
 ### Generated XML documents

@@ -31,34 +31,43 @@ class Analysis() {
 
     private val submission = Submission()
 
-    fun alias(alias: String) {
-        analysis.alias = alias
-        submission.setAlias(alias)
-    }
+    var alias = ""
+        set(value) {
+            analysis.alias = value
+            submission.alias = value
+        }
 
-    fun centerName(centerName: String) {
-        analysis.centerName = centerName
-        submission.setCenterName(centerName)
-    }
+    var centerName = ""
+        set(value) {
+            analysis.centerName = value
+            submission.centerName = value
+        }
 
-    fun analysisCenter(analysisCenter: String) {
-        analysis.analysisCenter = analysisCenter
-    }
+    var analysisCenter = ""
+        set(value) {
+            analysis.analysisCenter = value
+        }
 
-    fun brokerName(brokerName: String) {
-        analysis.brokerName = brokerName
-        submission.setBrokerName(brokerName)
-    }
+    var brokerName = ""
+        set(value) {
+            analysis.brokerName = value
+            submission.brokerName = value
+        }
 
-    fun title(title: String) {
-        analysis.title = title
-    }
+    var title = ""
+        set(value) {
+            analysis.title = value
+        }
 
-    fun description(description: String) {
-        analysis.description = description
-    }
+    var description = ""
+        set(value) {
+            analysis.description = value
+        }
 
-    fun holdDate(holdDate: Date) = submission.setHoldDate(holdDate)
+    var holdDate = Date()
+        set(value) {
+            submission.holdDate = value
+        }
 
     fun sampleMapping(init: Mapping.() -> Unit) {
         val mapping = Mapping()
@@ -70,13 +79,15 @@ class Analysis() {
         }
     }
 
-    fun studyReference(studyAccession: String) {
-        analysis.addNewSTUDYREF().accession = studyAccession
-    }
+    var studyReference = ""
+        set(value) {
+            analysis.addNewSTUDYREF().accession = value
+        }
 
-    fun runReference(runAccession: String) {
-        analysis.addNewRUNREF().accession = runAccession
-    }
+    var runReference = ""
+        set(value) {
+            analysis.addNewRUNREF().accession = value
+        }
 
     fun vcf(init: AnalysisFile.() -> Unit) {
         val vcf = AnalysisFile(analysis, FileType.VCF)
@@ -100,7 +111,7 @@ class Analysis() {
         return writer.toString()
     }
 
-    fun createDocuments(): Pair<String, String> {
+    internal fun createDocuments(): Pair<String, String> {
         return Pair(submission.create(), this.create())
     }
 }
@@ -139,27 +150,31 @@ private class Submission() {
         addAnalysis.schema = SubmissionType.ACTIONS.ACTION.ADD.Schema.ANALYSIS
     }
 
-    fun setAlias(alias: String) {
-        submission.alias = alias
-    }
-
-    fun setCenterName(centerName: String) {
-        submission.centerName = centerName
-    }
-
-    fun setBrokerName(brokerName: String) {
-        submission.brokerName = brokerName
-    }
-
-    fun setHoldDate(holdDate: Date) {
-        if (holdDate.after(Date())) {
-            val calendar = Calendar.getInstance().apply { this.time = holdDate }
-            val holdAction = actions.addNewACTION().addNewHOLD()
-            holdAction.holdUntilDate = calendar
+    var alias = ""
+        set(value) {
+            submission.alias = value
         }
-    }
 
-    fun create(): String {
+    var centerName = ""
+        set(value) {
+            submission.centerName = value
+        }
+
+    var brokerName = ""
+        set(value) {
+            submission.brokerName = value
+        }
+
+    var holdDate = Date()
+        set(value) {
+            if (value.after(Date())) {
+                val calendar = Calendar.getInstance().apply { this.time = value }
+                val holdAction = actions.addNewACTION().addNewHOLD()
+                holdAction.holdUntilDate = calendar
+            }
+        }
+
+    internal fun create(): String {
         throwXmlErrors(submissionDoc)
         val writer = StringWriter()
         submissionDoc.save(writer, XmlOptions().setSavePrettyPrint())
@@ -175,37 +190,40 @@ enum class FileType {
  * Setters for the 'file' part inside the 'analysis' XML document
  */
 class AnalysisFile(val analysis: AnalysisType, val fileType: FileType) {
-    private val file = analysis.addNewFILES().addNewFILE()
+    private val analysisFile = analysis.addNewFILES().addNewFILE()
     private val assembly = Assembly(analysis, fileType)
 
-    fun fileName(fileName: String) {
-        file.filename = fileName
-        file.filetype = when (fileType) {
-            FileType.VCF -> AnalysisFileType.Filetype.VCF
-            FileType.BAM -> AnalysisFileType.Filetype.BAM
-            FileType.CRAM -> AnalysisFileType.Filetype.CRAM
+    var fileName = ""
+        set(value) {
+            analysisFile.filename = value
+            analysisFile.filetype = when (fileType) {
+                FileType.VCF -> AnalysisFileType.Filetype.VCF
+                FileType.BAM -> AnalysisFileType.Filetype.BAM
+                FileType.CRAM -> AnalysisFileType.Filetype.CRAM
+            }
         }
-    }
 
-    fun fileName(dataFile: File) {
-        fileName(dataFile.name)
-    }
-
-    fun md5(md5: String) {
-        file.checksumMethod = AnalysisFileType.ChecksumMethod.MD_5
-        file.checksum = md5
-    }
-
-    fun md5(dataFile: File) {
-        val digest = MessageDigest.getInstance("MD5")
-        FileInputStream(dataFile).use {
-            IOUtils.copy(DigestInputStream(it, digest), NullOutputStream())
+    var md5 = ""
+        set(value) {
+            analysisFile.checksumMethod = AnalysisFileType.ChecksumMethod.MD_5
+            analysisFile.checksum = value
         }
-        val checksum = Hex.encodeHexString(digest.digest())
-        md5(checksum)
-    }
 
-    fun assemblyAccession(assemblyAccession: String) = assembly.accession(assemblyAccession)
+    var file = File("")
+        set(value) {
+            fileName = value.name
+            val digest = MessageDigest.getInstance("MD5")
+            FileInputStream(value).use {
+                IOUtils.copy(DigestInputStream(it, digest), NullOutputStream())
+            }
+            val checksum = Hex.encodeHexString(digest.digest())
+            md5 = checksum
+        }
+
+    var assemblyReference = ""
+        set(value) {
+            assembly.accession = value
+        }
 
     fun sequenceMapping(init: Mapping.() -> Unit) = assembly.sequenceMapping(init)
 }
@@ -224,12 +242,13 @@ private class Assembly(analysis: AnalysisType, fileType: FileType) {
         else -> type.addNewREFERENCEALIGNMENT()
     }
 
-    fun accession(assemblyAccession: String) {
-        val assembly = refType.addNewASSEMBLY().addNewSTANDARD()
-        assembly.accession = assemblyAccession
-    }
+    internal var accession = ""
+        set(value) {
+            val assembly = refType.addNewASSEMBLY().addNewSTANDARD()
+            assembly.accession = value
+        }
 
-    fun sequenceMapping(init: Mapping.() -> Unit) {
+    internal fun sequenceMapping(init: Mapping.() -> Unit) {
         val mapping = Mapping()
         mapping.init()
         for ((chromosome, accession) in mapping.pairs) {

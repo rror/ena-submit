@@ -22,13 +22,13 @@ class GenerateAnalysisTest {
     fun createSubmissionHoldTest() {
         // set hold date to current day, should be ignored
         val (submissionXml, analysisXml) = analysis {
-            title("")
-            description("")
-            studyReference("")
-            holdDate(Date())
+            title = ""
+            description = ""
+            studyReference = ""
+            holdDate = Date()
             vcf {
-                fileName("")
-                md5("")
+                fileName = ""
+                md5 = ""
             }
         }
         assertThat(submissionXml, not(containsString("HOLD")));
@@ -37,7 +37,7 @@ class GenerateAnalysisTest {
     @Test(expected = EnaXmlException::class)
     fun createIncompleteAnalysisTest() {
         analysis {
-            title("Capturing Extant Variation from a Genome in Flux: Maize HapMap II")
+            title = "Capturing Extant Variation from a Genome in Flux: Maize HapMap II"
         }
     }
 
@@ -67,24 +67,24 @@ class GenerateAnalysisTest {
 
     private fun createXmls(analysisFile: KFunction2<Analysis, AnalysisFile.() -> Unit, Unit>): Pair<String, String> {
         return analysis {
-            alias("Maize HapMap test")
-            centerName("CSHL")
-            analysisCenter("CSHL")
-            brokerName("ENSEMBL GENOMES")
-            holdDate(GregorianCalendar(2020, 11, 24).time) // month is 0 based
-            title("Capturing Extant Variation from a Genome in Flux: Maize HapMap II")
-            description("A comprehensive characterization of genetic variation across 103 inbred lines ...")
+            alias = "Maize HapMap test"
+            centerName = "CSHL"
+            analysisCenter = "CSHL"
+            brokerName = "ENSEMBL GENOMES"
+            holdDate = GregorianCalendar(2020, 11, 24).time // month is 0 based
+            title = "Capturing Extant Variation from a Genome in Flux: Maize HapMap II"
+            description = "A comprehensive characterization of genetic variation across 103 inbred lines ..."
             sampleMapping {
                 +"IRGC103469/IRGC103469_aln_sorted.bam".to("SRS302388")
                 +"TOG7102/TOG7102_aln_sorted.bam".to("SRS302394")
                 +"TOG5467/TOG5467_aln_sorted.bam".to("SRS302390")
             }
-            studyReference("SRP011907")
-            runReference("SRR447750")
+            studyReference = "SRP011907"
+            runReference = "SRR447750"
             analysisFile(this) {
-                fileName("Glab_var_chr1_flt_1k.vcf")
-                md5("10899e2ca49b37c8c37c4763616496ac")
-                assemblyAccession("GCA_000005005.2")
+                fileName = "Glab_var_chr1_flt_1k.vcf"
+                md5 = "10899e2ca49b37c8c37c4763616496ac"
+                assemblyReference = "GCA_000005005.2"
                 sequenceMapping {
                     +"1".to("GK000031.2")
                 }
@@ -108,13 +108,12 @@ class GenerateAnalysisTest {
     fun createFileAnalysisTest() {
         val vcfFile = File(javaClass.classLoader.getResource("Glab_var_chr1_flt.vcf").file)
         val (submissionXml, analysisXml) = analysis {
-            title("")
-            description("")
-            studyReference("")
-            holdDate(Date())
+            title = ""
+            description = ""
+            studyReference = ""
+            holdDate = Date()
             vcf {
-                fileName(vcfFile)
-                md5(vcfFile)
+                file = vcfFile
             }
         }
         assertThat(analysisXml, containsString(""" filename="Glab_var_chr1_flt.vcf" """))
