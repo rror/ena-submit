@@ -17,45 +17,49 @@ import java.security.InvalidParameterException
 import java.util.*
 import javax.xml.stream.XMLInputFactory
 
-private class EnaCredentials {
-    companion object {
-        private fun exception(name: String) = InvalidParameterException("Environment variable '$name' not set.")
-        val user = System.getenv("ena_user") ?: throw exception("ena_user")
-        val password = System.getenv("ena_password") ?: throw exception("ena_password")
-    }
+private object EnaCredentials {
+    private fun exception(name: String) = InvalidParameterException("Environment variable '$name' not set.")
+    val user = System.getenv("ena_user") ?: throw exception("ena_user")
+    val password = System.getenv("ena_password") ?: throw exception("ena_password")
 }
 
-private class EnaUrls {
-    companion object {
-        val testServer: String
-        val productionServer: String
-        val ftpServer: String
+private object EnaUrls {
+    val testServer: String
+    val productionServer: String
+    val ftpServer: String
 
-        init {
-            val prop = Properties()
-            FileInputStream("ena-url.properties").use {
-                prop.load(it)
-            }
-            fun exception(name: String) = InvalidParameterException("'$name' is not set in ena-url.properties")
-            testServer = prop.getProperty("test-server") ?: throw exception("test-server")
-            productionServer = prop.getProperty("production-server") ?: throw exception("production-server")
-            ftpServer = prop.getProperty("ftp-server") ?: throw exception("ftp-server")
+    init {
+        val prop = Properties()
+        FileInputStream("ena-url.properties").use {
+            prop.load(it)
         }
+        fun exception(name: String) = InvalidParameterException("'$name' is not set in ena-url.properties")
+        testServer = prop.getProperty("test-server") ?: throw exception("test-server")
+        productionServer = prop.getProperty("production-server") ?: throw exception("production-server")
+        ftpServer = prop.getProperty("ftp-server") ?: throw exception("ftp-server")
     }
 }
 
+/**
+ * Submissions to the [TEST] server are deleted every 24 hours are not publicly visible.
+ */
 enum class EnaServer(val url: String) {
     TEST("${EnaUrls.testServer}?auth=ENA%20${EnaCredentials.user}%20${EnaCredentials.password}"),
     PRODUCTION("${EnaUrls.productionServer}?auth=ENA%20${EnaCredentials.user}%20${EnaCredentials.password}")
 }
 
+/**
+ * [success]: 'false' if ENA has found problems with the submission. See [error] for details.
+ *
+ * [submissionAcc] and [analysisAcc]: See http://www.ebi.ac.uk/ena/submit/data-formats.
+ */
 data class SubmissionResult(var success: Boolean = false,
                             var submissionAcc: String = "",
                             var analysisAcc: String = "",
                             var error: String = "")
 
 fun submitToEna(submissionXml: String, analysisXml: String, enaServer: EnaServer): SubmissionResult {
-    val (submissionFile, analysisFile) = createXmlFiles(analysisXml, submissionXml)
+    val (submissionFile, analysisFile) = createXmlFiles(submissionXml, analysisXml)
 
     val post = HttpPost(enaServer.url)
     post.entity = MultipartEntityBuilder.create()
@@ -72,7 +76,7 @@ fun submitToEna(submissionXml: String, analysisXml: String, enaServer: EnaServer
     }
 }
 
-private fun createXmlFiles(analysisXml: String, submissionXml: String): Pair<File, File> {
+private fun createXmlFiles(submissionXml: String, analysisXml: String): Pair<File, File> {
     val submissionFile = File.createTempFile("ena_submission", ".xml")
     submissionFile.deleteOnExit()
     FileWriter(submissionFile).use {
@@ -87,6 +91,10 @@ private fun createXmlFiles(analysisXml: String, submissionXml: String): Pair<Fil
     return Pair(submissionFile, analysisFile)
 }
 
+/**
+ * ENA uses HTTPS but its certificate is not signed by a trusted root certificate.
+ * Returns an [HttpClient][org.apache.http.client.HttpClient] which trusts all certificates.
+ */
 private fun createCertificateIgnoringHttpclient(): CloseableHttpClient {
     val sslContext = SSLContexts.custom().loadTrustMaterial(null, { certificateChain, autType -> true }).build()
     val socketFactory = SSLConnectionSocketFactory(sslContext)
