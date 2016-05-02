@@ -56,7 +56,8 @@ public class SubmitJavaTest {
 		String analysisXml = xmls.getSecond();
 
 		SubmissionResult result = SubmitKt.submitToEna(submissionXml, analysisXml, EnaServer.TEST);
-		if (result.getError().equals("Server error. Please contact us if the problem persists.")) {
+		if (result.getError().equals("Server error. Please contact us if the problem persists.")
+				|| result.getError().contains("don't exist in the drop box or upload area /fire/staging/era/upload")) {
 			System.out.println("ENA submission server is down. Unable to test submission.");
 		} else if (!result.getError().contains("Submission with name Maize HapMap test already exists")) {
 			assertThat(result.getSuccess(), is(true));

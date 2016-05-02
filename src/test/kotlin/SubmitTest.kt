@@ -48,7 +48,8 @@ class SubmitTest {
         }
 
         val result = submitToEna(submissionXml, analysisXml, EnaServer.TEST)
-        if (result.error == "Server error. Please contact us if the problem persists.") {
+        if (result.error == "Server error. Please contact us if the problem persists."
+                || result.error.contains("don't exist in the drop box or upload area /fire/staging/era/upload")) {
             println("ENA submission server is down. Unable to test submission.")
         }
         // Submissions to the ENA test server are deleted every 24 hours,
@@ -82,7 +83,8 @@ class SubmitTest {
         }
 
         val result = submitToEna(submissionXml, analysisXml, EnaServer.TEST)
-        if (result.error == "Server error. Please contact us if the problem persists.") {
+        if (result.error == "Server error. Please contact us if the problem persists."
+                || result.error.contains("don't exist in the drop box or upload area /fire/staging/era/upload")) {
             println("ENA submission server is down. Unable to test submission.")
         } else {
             assertThat(result.success, is_(false))
