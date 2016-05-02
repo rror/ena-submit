@@ -229,7 +229,7 @@ class AnalysisFile(val analysis: AnalysisType, val fileType: FileType) {
 }
 
 /**
- * Setters for the 'file' part inside the 'analysis' XML document
+ * Setters for the 'assembly' part inside the 'analysis' XML document
  */
 private class Assembly(analysis: AnalysisType, fileType: FileType) {
     private val type = analysis.addNewANALYSISTYPE()
